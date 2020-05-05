@@ -33,7 +33,7 @@ class Bitboard {
     private boolean getBit(int index) {
         return (this.bits >> index & ONE) > 0;
     }
-    private boolean getBit(char file, int rank) {
+    boolean getBit(char file, int rank) {
         return this.getBit(indexFromFileRank(file, rank));
     }
 
