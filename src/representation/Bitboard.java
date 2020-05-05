@@ -10,23 +10,76 @@ class Bitboard {
     private static final long ZERO = 0x0000000000000000L;
     private static final long FULL = 0xFFFFFFFFFFFFFFFFL;
 
-    // The main attraction
+    // Used for unit testing
     public static void main(String[] args) {
 
-        // Create a new bitboard
-        Bitboard board = new Bitboard();
-        System.out.println(board);
+        // Create a new empty bitboard
+        Bitboard board = new Bitboard(ZERO);
 
-        // Set some positions up
-        board.setBit('A', 1, true);
-        board.setBit('H', 8, true);
-        board.setBit('E', 4, true);
-        board.setBit('E', 4, false);
-        board.setBit('F', 6, false);
-        board.setBit('F', 6, true);
+        // Make sure each bit can be on while all others are off
+        for (char focusRank = 'A'; focusRank <= 'H'; focusRank++)
+            for (int focusFile = 1; focusFile <= 8; focusFile++) {
 
-        // Print the board again
-        System.out.println(board);
+                // Set the focus bit on
+                board.setBit(focusRank, focusFile, true);
+
+                // Check focus bit on
+                if (!board.getBit(focusRank, focusFile))
+                    throw new RuntimeException("Issue at focus rank " + focusRank +
+                                                ", focus file " + focusFile);
+
+                // Check every other bit is off
+                for (char otherRank = 'A'; otherRank <= 'H'; otherRank++)
+                    for (int otherFile = 1; otherFile <= 8; otherFile++) {
+
+                        // Exclude focus square
+                        if (focusRank == otherRank && focusFile == otherFile)
+                            continue;
+
+                        if (board.getBit(otherRank, otherFile))
+                            throw new RuntimeException("Issue at focus rank " + focusRank +
+                                                        ", focus file " + focusFile +
+                                                        ", other rank " + otherRank +
+                                                        ", other file " + otherFile);
+                    }
+
+                // Set the focus bit off
+                board.setBit(focusRank, focusFile, false);
+            }
+
+        // Create a new full bitboard
+        board = new Bitboard(FULL);
+
+        // Make sure each bit can be off while all others are on
+        for (char focusRank = 'A'; focusRank <= 'H'; focusRank++)
+            for (int focusFile = 1; focusFile <= 8; focusFile++) {
+
+                // Set the focus bit off
+                board.setBit(focusRank, focusFile, false);
+
+                // Check focus bit off
+                if (board.getBit(focusRank, focusFile))
+                    throw new RuntimeException("Issue at focus rank " + focusRank +
+                            ", focus file " + focusFile);
+
+                // Check every other bit is on
+                for (char otherRank = 'A'; otherRank <= 'H'; otherRank++)
+                    for (int otherFile = 1; otherFile <= 8; otherFile++) {
+
+                        // Exclude focus square
+                        if (focusRank == otherRank && focusFile == otherFile)
+                            continue;
+
+                        if (!board.getBit(otherRank, otherFile))
+                            throw new RuntimeException("Issue at focus rank " + focusRank +
+                                    ", focus file " + focusFile +
+                                    ", other rank " + otherRank +
+                                    ", other file " + otherFile);
+                    }
+
+                // Set the focus bit on
+                board.setBit(focusRank, focusFile, true);
+            }
     }
 
     // Constructors
