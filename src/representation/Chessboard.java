@@ -13,12 +13,15 @@ class Chessboard {
     private static final int QUEEN  = Piece.QUEEN;
     private static final int PAWN   = Piece.PAWN;
 
-    // Hold a bitmask for each piece type and for each color
-    private Bitboard[] boards;
-
     // Hold all the capture and quiet move bitmasks
     private static final Bitboard[][][] captureMoves = Piece.getCaptureMoves();
     private static final Bitboard[][][] quietMoves   = Piece.getQuietMoves();
+
+    // Hold a bitmask for each piece type and for each color
+    private Bitboard[] boards;
+
+    // Keep track of en passant rights and castling rights
+    private SpecialFlags flags;
 
     // Default constructor
     Chessboard() {
@@ -28,8 +31,8 @@ class Chessboard {
         for (int i = 0; i < 8; i++)
             this.boards[i] = new Bitboard();
 
-        // Set default boards
-        this.setDefaultBoards();
+        // Load the defaults
+        this.loadDefaults();
     }
 
     // Protection methods
@@ -69,7 +72,7 @@ class Chessboard {
     }
 
     // Load starting chess position
-    private void setDefaultBoards() {
+    private void loadDefaults() {
 
         // White frontend
         this.setBit('A', 2, PAWN, WHITE, true);
@@ -110,6 +113,9 @@ class Chessboard {
         this.setBit('F', 8, BISHOP, BLACK, true);
         this.setBit('G', 8, KNIGHT, BLACK, true);
         this.setBit('H', 8, ROOK,   BLACK, true);
+
+        // Load the starting flags
+        this.flags = new SpecialFlags();
     }
 
     @Override
