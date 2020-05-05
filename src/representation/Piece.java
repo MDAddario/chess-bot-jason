@@ -2,13 +2,23 @@ package representation;
 
 class Piece {
 
-    // Distinguish the colors
-    private static final int BLACK = 0;
-    private static final int WHITE = 1;
+    // Distinguish the piece colors and piece types
+    static final int BLACK  = 0;
+    static final int WHITE  = 1;
+    static final int KING   = 2;
+    static final int KNIGHT = 3;
+    static final int ROOK   = 4;
+    static final int BISHOP = 5;
+    static final int QUEEN  = 6;
+    static final int PAWN   = 7;
 
     // Bitboard helper methods
     private static Bitboard[][] allocateBitboards() {
         return new Bitboard[2][64];
+    }
+
+    private static Bitboard[][][] allocateMoves() {
+        return new Bitboard[8][][];
     }
 
     private static void applyColorNeutral(Bitboard[][] boards) {
@@ -208,7 +218,7 @@ class Piece {
     }
 
     // Pawn specific generations
-    static Bitboard[][] generatePawnCaptures() {
+    private static Bitboard[][] generatePawnCaptures() {
 
         // Extract each color
         Bitboard[][] whiteMoves = generateWhitePawnCaptures();
@@ -217,7 +227,7 @@ class Piece {
         return combinePawnBitboards(whiteMoves, blackMoves);
     }
 
-    static Bitboard[][] generatePawnQuiets() {
+    private static Bitboard[][] generatePawnQuiets() {
 
         // Extract each color
         Bitboard[][] whiteMoves = generateWhitePawnQuiets();
@@ -227,7 +237,7 @@ class Piece {
     }
 
     // Piece specific generations
-    static Bitboard[][] generateKnightMoves() {
+    private static Bitboard[][] generateKnightMoves() {
 
         // Construct all knight moves
         int[] dFile = {+1, -1, -2, -2, -1, +1, +2, +2};
@@ -236,7 +246,7 @@ class Piece {
         return generateJumpingBoards(dFile, dRank);
     }
 
-    static Bitboard[][] generateKingMoves() {
+    private static Bitboard[][] generateKingMoves() {
 
         // Construct all king moves
         int[] dFile = {+1, +1, +0, -1, -1, -1, +0, +1};
@@ -245,7 +255,7 @@ class Piece {
         return generateJumpingBoards(dFile, dRank);
     }
 
-    static Bitboard[][] generateRookMoves() {
+    private static Bitboard[][] generateRookMoves() {
 
         // Construct all rook moves
         int[] dFile = {+1, +0, -1, +0};
@@ -254,7 +264,7 @@ class Piece {
         return generateSlidingBoards(dFile, dRank);
     }
 
-    static Bitboard[][] generateBishopMoves() {
+    private static Bitboard[][] generateBishopMoves() {
 
         // Construct all bishop moves
         int[] dFile = {+1, +1, -1, -1};
@@ -263,7 +273,7 @@ class Piece {
         return generateSlidingBoards(dFile, dRank);
     }
 
-    static Bitboard[][] generateQueenMoves() {
+    private static Bitboard[][] generateQueenMoves() {
 
         // Construct all queen moves
         int[] dFile = {+1, +0, -1, +0, +1, +1, -1, -1};
@@ -272,14 +282,47 @@ class Piece {
         return generateSlidingBoards(dFile, dRank);
     }
 
+    static Bitboard[][][] getCaptureMoves() {
+
+        // Allocate moves
+        Bitboard[][][] moves = allocateMoves();
+
+        // Populate the array
+        moves[KNIGHT] = generateKnightMoves();
+        moves[KING]   = generateKingMoves();
+        moves[BISHOP] = generateBishopMoves();
+        moves[ROOK]   = generateRookMoves();
+        moves[QUEEN]  = generateQueenMoves();
+        moves[PAWN]   = generatePawnCaptures();
+
+        return moves;
+    }
+
+    static Bitboard[][][] getQuietMoves() {
+
+        // Allocate moves
+        Bitboard[][][] moves = allocateMoves();
+
+        // Populate the array
+        moves[KNIGHT] = generateKnightMoves();
+        moves[KING]   = generateKingMoves();
+        moves[BISHOP] = generateBishopMoves();
+        moves[ROOK]   = generateRookMoves();
+        moves[QUEEN]  = generateQueenMoves();
+        moves[PAWN]   = generatePawnQuiets();
+
+        return moves;
+    }
+
     // Unit testing
     public static void main(String[] args) {
 
-        // Create knight moves
-        Bitboard[][] knightMoves = generateKnightMoves();
+        // Create all types of moves
+        Bitboard[][][] captureMoves = getCaptureMoves();
+        Bitboard[][][] quietMoves   = getQuietMoves();
 
         // Let's focus on E4
-        Bitboard knightBoard = knightMoves[WHITE][Bitboard.indexFromFileRank('E', 4)];
+        Bitboard knightBoard = captureMoves[KNIGHT][WHITE][Bitboard.indexFromFileRank('E', 4)];
         Bitboard board = new Bitboard();
         board.setBit('C', 3, true);
         board.setBit('C', 5, true);
@@ -294,7 +337,7 @@ class Piece {
             throw new UnitTestException("Knight move generation is bad.");
 
         // Let's focus on B1
-        knightBoard = knightMoves[BLACK][Bitboard.indexFromFileRank('B', 1)];
+        knightBoard = captureMoves[KNIGHT][BLACK][Bitboard.indexFromFileRank('B', 1)];
         board = new Bitboard();
         board.setBit('A', 3, true);
         board.setBit('C', 3, true);
@@ -304,10 +347,8 @@ class Piece {
             throw new UnitTestException("Knight move generation is bad.");
 
         // Create king moves
-        Bitboard[][] kingMoves = generateKingMoves();
-
         // Let's focus on E4
-        Bitboard kingBoard = kingMoves[WHITE][Bitboard.indexFromFileRank('E', 4)];
+        Bitboard kingBoard = captureMoves[KING][WHITE][Bitboard.indexFromFileRank('E', 4)];
         board = new Bitboard();
         board.setBit('D', 3, true);
         board.setBit('D', 4, true);
@@ -322,7 +363,7 @@ class Piece {
             throw new UnitTestException("King move generation is bad.");
 
         // Let's focus on H8
-        kingBoard = kingMoves[BLACK][Bitboard.indexFromFileRank('H', 8)];
+        kingBoard = captureMoves[KING][BLACK][Bitboard.indexFromFileRank('H', 8)];
         board = new Bitboard();
         board.setBit('G', 8, true);
         board.setBit('G', 7, true);
@@ -332,10 +373,8 @@ class Piece {
             throw new UnitTestException("King move generation is bad.");
 
         // Create rook moves
-        Bitboard[][] rookMoves = generateRookMoves();
-
         // Let's focus on E4
-        Bitboard rookBoard = rookMoves[WHITE][Bitboard.indexFromFileRank('E', 4)];
+        Bitboard rookBoard = captureMoves[ROOK][WHITE][Bitboard.indexFromFileRank('E', 4)];
         board = new Bitboard();
         board.setBit('E', 1, true);
         board.setBit('E', 2, true);
@@ -356,10 +395,8 @@ class Piece {
             throw new UnitTestException("Rook move generation is bad.");
 
         // Create bishop moves
-        Bitboard[][] bishopMoves = generateBishopMoves();
-
         // Let's focus on E4
-        Bitboard bishopBoard = bishopMoves[BLACK][Bitboard.indexFromFileRank('E', 4)];
+        Bitboard bishopBoard = captureMoves[BISHOP][BLACK][Bitboard.indexFromFileRank('E', 4)];
         board = new Bitboard();
         board.setBit('D', 3, true);
         board.setBit('C', 2, true);
@@ -379,10 +416,8 @@ class Piece {
             throw new UnitTestException("Bishop move generation is bad.");
 
         // Create queen moves
-        Bitboard[][] queenMoves = generateQueenMoves();
-
         // Let's focus on E4
-        Bitboard queenBoard = queenMoves[WHITE][Bitboard.indexFromFileRank('E', 4)];
+        Bitboard queenBoard = captureMoves[QUEEN][WHITE][Bitboard.indexFromFileRank('E', 4)];
         board = new Bitboard();
         board.setBit('E', 1, true);
         board.setBit('E', 2, true);
@@ -416,10 +451,8 @@ class Piece {
             throw new UnitTestException("Queen move generation is bad.");
 
         // Create pawn captures
-        Bitboard[][] pawnCaptures = generatePawnCaptures();
-
         // Let's focus on white E4
-        Bitboard pawnBoard = pawnCaptures[WHITE][Bitboard.indexFromFileRank('E', 4)];
+        Bitboard pawnBoard = captureMoves[PAWN][WHITE][Bitboard.indexFromFileRank('E', 4)];
         board = new Bitboard();
         board.setBit('D', 5, true);
         board.setBit('F', 5, true);
@@ -428,7 +461,7 @@ class Piece {
             throw new UnitTestException("White pawn capture move generation is bad.");
 
         // Let's focus on white H7
-        pawnBoard = pawnCaptures[WHITE][Bitboard.indexFromFileRank('H', 7)];
+        pawnBoard = captureMoves[PAWN][WHITE][Bitboard.indexFromFileRank('H', 7)];
         board = new Bitboard();
         board.setBit('G', 8, true);
 
@@ -436,7 +469,7 @@ class Piece {
             throw new UnitTestException("White pawn capture move generation is bad.");
 
         // Let's focus on black H7
-        pawnBoard = pawnCaptures[BLACK][Bitboard.indexFromFileRank('H', 7)];
+        pawnBoard = captureMoves[PAWN][BLACK][Bitboard.indexFromFileRank('H', 7)];
         board = new Bitboard();
         board.setBit('G', 6, true);
 
@@ -444,7 +477,7 @@ class Piece {
             throw new UnitTestException("Black pawn capture move generation is bad.");
 
         // Let's focus on black C2
-        pawnBoard = pawnCaptures[BLACK][Bitboard.indexFromFileRank('C', 2)];
+        pawnBoard = captureMoves[PAWN][BLACK][Bitboard.indexFromFileRank('C', 2)];
         board = new Bitboard();
         board.setBit('B', 1, true);
         board.setBit('D', 1, true);
@@ -453,10 +486,8 @@ class Piece {
             throw new UnitTestException("Black pawn capture move generation is bad.");
 
         // Create pawn quiets
-        Bitboard[][] pawnQuiets = generatePawnQuiets();
-
         // Let's focus on white E4
-        pawnBoard = pawnQuiets[WHITE][Bitboard.indexFromFileRank('E', 4)];
+        pawnBoard = quietMoves[PAWN][WHITE][Bitboard.indexFromFileRank('E', 4)];
         board = new Bitboard();
         board.setBit('E', 5, true);
 
@@ -464,7 +495,7 @@ class Piece {
             throw new UnitTestException("White pawn quiet move generation is bad.");
 
         // Let's focus on white H2
-        pawnBoard = pawnQuiets[WHITE][Bitboard.indexFromFileRank('H', 2)];
+        pawnBoard = quietMoves[PAWN][WHITE][Bitboard.indexFromFileRank('H', 2)];
         board = new Bitboard();
         board.setBit('H', 3, true);
         board.setBit('H', 4, true);
@@ -473,7 +504,7 @@ class Piece {
             throw new UnitTestException("White pawn quiet move generation is bad.");
 
         // Let's focus on black B3
-        pawnBoard = pawnQuiets[BLACK][Bitboard.indexFromFileRank('B', 3)];
+        pawnBoard = quietMoves[PAWN][BLACK][Bitboard.indexFromFileRank('B', 3)];
         board = new Bitboard();
         board.setBit('B', 2, true);
 
@@ -481,7 +512,7 @@ class Piece {
             throw new UnitTestException("Black pawn quiet move generation is bad.");
 
         // Let's focus on black D7
-        pawnBoard = pawnQuiets[BLACK][Bitboard.indexFromFileRank('D', 7)];
+        pawnBoard = quietMoves[PAWN][BLACK][Bitboard.indexFromFileRank('D', 7)];
         board = new Bitboard();
         board.setBit('D', 6, true);
         board.setBit('D', 5, true);
