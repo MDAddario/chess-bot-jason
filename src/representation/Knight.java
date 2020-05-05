@@ -45,7 +45,7 @@ class Knight {
         return generateQuietBitboards();
     }
 
-    // Make sure it worked
+    // Unit testing
     public static void main(String[] args) {
 
         // Create night moves
