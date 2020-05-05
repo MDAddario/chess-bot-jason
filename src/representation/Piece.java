@@ -2,8 +2,6 @@ package representation;
 
 abstract class Piece {
 
-
-
     // General class information
     abstract String getName();
     abstract int    getValue();

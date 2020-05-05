@@ -13,72 +13,72 @@ class Bitboard {
     // Used for unit testing
     public static void main(String[] args) {
 
-        // Create a new empty bitboard
+        // Create an empty bitboard
         Bitboard board = new Bitboard(ZERO);
 
         // Make sure each bit can be on while all others are off
-        for (char focusRank = 'A'; focusRank <= 'H'; focusRank++)
-            for (int focusFile = 1; focusFile <= 8; focusFile++) {
+        for (char focusFile = 'A'; focusFile <= 'H'; focusFile++)
+            for (int focusRank = 1; focusRank <= 8; focusRank++) {
 
                 // Set the focus bit on
-                board.setBit(focusRank, focusFile, true);
+                board.setBit(focusFile, focusRank, true);
 
                 // Check focus bit on
-                if (!board.getBit(focusRank, focusFile))
-                    throw new UnitTestException("Issue at focus rank " + focusRank +
-                                                ", focus file " + focusFile);
+                if (!board.getBit(focusFile, focusRank))
+                    throw new UnitTestException("Issue at focus file " + focusFile +
+                                                ", focus rank " + focusRank);
 
                 // Check every other bit is off
-                for (char otherRank = 'A'; otherRank <= 'H'; otherRank++)
-                    for (int otherFile = 1; otherFile <= 8; otherFile++) {
+                for (char otherFile = 'A'; otherFile <= 'H'; otherFile++)
+                    for (int otherRank = 1; otherRank <= 8; otherRank++) {
 
                         // Exclude focus square
-                        if (focusRank == otherRank && focusFile == otherFile)
+                        if (focusFile == otherFile && focusRank == otherRank)
                             continue;
 
-                        if (board.getBit(otherRank, otherFile))
-                            throw new UnitTestException("Issue at focus rank " + focusRank +
-                                                        ", focus file " + focusFile +
-                                                        ", other rank " + otherRank +
-                                                        ", other file " + otherFile);
+                        if (board.getBit(otherFile, otherRank))
+                            throw new UnitTestException("Issue at focus file " + focusFile +
+                                                        ", focus rank " + focusRank +
+                                                        ", other file " + otherFile +
+                                                        ", other rank " + otherRank);
                     }
 
                 // Set the focus bit off
-                board.setBit(focusRank, focusFile, false);
+                board.setBit(focusFile, focusRank, false);
             }
 
-        // Create a new full bitboard
+        // Create a full bitboard
         board = new Bitboard(FULL);
 
         // Make sure each bit can be off while all others are on
-        for (char focusRank = 'A'; focusRank <= 'H'; focusRank++)
-            for (int focusFile = 1; focusFile <= 8; focusFile++) {
+        for (char focusFile = 'A'; focusFile <= 'H'; focusFile++)
+            for (int focusRank = 1; focusRank <= 8; focusRank++) {
 
                 // Set the focus bit off
-                board.setBit(focusRank, focusFile, false);
+                board.setBit(focusFile, focusRank, false);
 
                 // Check focus bit off
-                if (board.getBit(focusRank, focusFile))
-                    throw new UnitTestException("Issue at focus rank " + focusRank +
-                            ", focus file " + focusFile);
+                if (board.getBit(focusFile, focusRank))
+                    throw new UnitTestException("Issue at focus file " + focusFile +
+                            ", focus rank " + focusRank);
 
                 // Check every other bit is on
-                for (char otherRank = 'A'; otherRank <= 'H'; otherRank++)
-                    for (int otherFile = 1; otherFile <= 8; otherFile++) {
+                for (char otherFile = 'A'; otherFile <= 'H'; otherFile++)
+                    for (int otherRank = 1; otherRank <= 8; otherRank++) {
 
                         // Exclude focus square
-                        if (focusRank == otherRank && focusFile == otherFile)
+                        if (focusFile == otherFile && focusRank == otherRank)
                             continue;
 
-                        if (!board.getBit(otherRank, otherFile))
-                            throw new UnitTestException("Issue at focus rank " + focusRank +
-                                    ", focus file " + focusFile +
-                                    ", other rank " + otherRank +
-                                    ", other file " + otherFile);
+                        if (!board.getBit(otherFile, otherRank))
+                            throw new UnitTestException("Issue at focus file " + focusFile +
+                                    ", focus rank " + focusRank +
+                                    ", other file " + otherFile +
+                                    ", other rank " + otherRank);
                     }
 
                 // Set the focus bit on
-                board.setBit(focusRank, focusFile, true);
+                board.setBit(focusFile, focusRank, true);
             }
     }
 
@@ -87,28 +87,26 @@ class Bitboard {
     Bitboard(long bits) { this.bits = bits; }
 
     // Validate rank and file input
-    static boolean isRankFileInBounds(char rank, int file) {
-        return ('A' <= rank && rank <= 'H' && 1 <= file && file <= 8);
+    static boolean isFileRankInBounds(char file, int rank) {
+        return ('A' <= file && file <= 'H' && 1 <= rank && rank <= 8);
     }
 
     // Convert rank and file to bit index
-    static int indexFromRankFile(char rank, int file) {
+    static int indexFromFileRank(char file, int rank) {
 
         // Make sure the inputs are good
-        if (!('A' <= rank && rank <= 'H'))
-            throw new IllegalArgumentException("Rank input must be between 'A' and 'H'");
-        if (!(1 <= file && file <= 8))
-            throw new IllegalArgumentException("File input must be between 1 and 8");
+        if (!isFileRankInBounds(file, rank))
+            throw new IllegalArgumentException("File and rank input combination " + file + " " + rank + " is illegal.");
 
-        return (rank - 'A') * 8 + (file - 1);
+        return (file - 'A') + (rank - 1) * 8;
     }
 
     // Bit getter
     private boolean getBit(int index) {
         return (this.bits >> index & ONE) > 0;
     }
-    private boolean getBit(char rank, int file) {
-        return this.getBit(indexFromRankFile(rank, file));
+    private boolean getBit(char file, int rank) {
+        return this.getBit(indexFromFileRank(file, rank));
     }
 
     // Bit setter
@@ -118,8 +116,8 @@ class Bitboard {
         else
             this.bits &= ~(ONE << index);
     }
-    void setBit(char rank, int file, boolean isActive) {
-        this.setBit(indexFromRankFile(rank, file), isActive);
+    void setBit(char file, int rank, boolean isActive) {
+        this.setBit(indexFromFileRank(file, rank), isActive);
     }
 
     @Override
@@ -127,9 +125,9 @@ class Bitboard {
         StringBuilder output = new StringBuilder();
         output.append("---".repeat(8));
         output.append("\n");
-        for (char rank = 'H'; rank >= 'A'; rank--) {
-            for (int file = 1; file <= 8; file++) {
-                if (this.getBit(rank, file))
+        for (int rank = 8; rank >= 1; rank--) {
+            for (char file = 'A'; file <= 'H'; file++) {
+                if (this.getBit(file, rank))
                     output.append(" X ");
                 else
                     output.append(" . ");
@@ -140,7 +138,7 @@ class Bitboard {
         }
         output.append("---".repeat(8));
         output.append("\n");
-        for (int file = 1; file <= 8; file++) {
+        for (char file = 'A'; file <= 'H'; file++) {
             output.append(" ");
             output.append(file);
             output.append(" ");

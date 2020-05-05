@@ -16,23 +16,23 @@ class Knight {
         Bitboard[][] boards = Piece.allocateBitboards();
 
         // Construct all knight moves
-        int[] dRank = {+2, +2, +1, -1, -2, -2, -1, +1};
         int[] dFile = {+1, -1, -2, -2, -1, +1, +2, +2};
+        int[] dRank = {+2, +2, +1, -1, -2, -2, -1, +1};
 
         // Span all starting squares
-        for (char rank = 'A'; rank <= 'H'; rank++)
-            for (int file = 1; file <= 8; file++) {
+        for (char file = 'A'; file <= 'H'; file++)
+            for (int rank = 1; rank <= 8; rank++) {
 
                 // Create new bitboard
                 Bitboard board = new Bitboard();
 
                 // Span all knight moves
                 for (int i = 0; i < 8; i++)
-                    if (Bitboard.isRankFileInBounds((char)(rank + dRank[i]), file + dFile[i]))
-                        board.setBit((char)(rank + dRank[i]), file + dFile[i], true);
+                    if (Bitboard.isFileRankInBounds((char)(file + dFile[i]), rank + dRank[i]))
+                        board.setBit((char)(file + dFile[i]), rank + dRank[i], true);
 
                 // Store the board in the right spot
-                boards[0][Bitboard.indexFromRankFile(rank, file)] = board;
+                boards[0][Bitboard.indexFromFileRank(file, rank)] = board;
             }
 
         // Copy the color-neutral board
@@ -52,7 +52,7 @@ class Knight {
         Bitboard[][] knightMoves = generateCaptureBitboards();
 
         // Let's focus on E4
-        Bitboard knightBoard = knightMoves[0][Bitboard.indexFromRankFile('E', 4)];
+        Bitboard knightBoard = knightMoves[0][Bitboard.indexFromFileRank('E', 4)];
         Bitboard board = new Bitboard();
         board.setBit('C', 3, true);
         board.setBit('C', 5, true);
@@ -64,17 +64,20 @@ class Knight {
         board.setBit('G', 5, true);
 
         if (!board.equals(knightBoard))
-            throw new UnitTestException("Move generation is bad.");
+            throw new UnitTestException("Knight move generation is bad.");
+
+        System.out.println(knightBoard);
+        System.out.println(board);
 
         // Let's focus on A1
-        knightBoard = knightMoves[0][Bitboard.indexFromRankFile('B', 1)];
+        knightBoard = knightMoves[0][Bitboard.indexFromFileRank('B', 1)];
         board = new Bitboard();
         board.setBit('A', 3, true);
         board.setBit('C', 3, true);
         board.setBit('D', 2, true);
 
         if (!board.equals(knightBoard))
-            throw new UnitTestException("Move generation is bad.");
+            throw new UnitTestException("Knight move generation is bad.");
 
         System.out.println(knightBoard);
         System.out.println(board);
