@@ -25,7 +25,7 @@ class Bitboard {
 
                 // Check focus bit on
                 if (!board.getBit(focusRank, focusFile))
-                    throw new RuntimeException("Issue at focus rank " + focusRank +
+                    throw new UnitTestException("Issue at focus rank " + focusRank +
                                                 ", focus file " + focusFile);
 
                 // Check every other bit is off
@@ -37,7 +37,7 @@ class Bitboard {
                             continue;
 
                         if (board.getBit(otherRank, otherFile))
-                            throw new RuntimeException("Issue at focus rank " + focusRank +
+                            throw new UnitTestException("Issue at focus rank " + focusRank +
                                                         ", focus file " + focusFile +
                                                         ", other rank " + otherRank +
                                                         ", other file " + otherFile);
@@ -59,7 +59,7 @@ class Bitboard {
 
                 // Check focus bit off
                 if (board.getBit(focusRank, focusFile))
-                    throw new RuntimeException("Issue at focus rank " + focusRank +
+                    throw new UnitTestException("Issue at focus rank " + focusRank +
                             ", focus file " + focusFile);
 
                 // Check every other bit is on
@@ -71,7 +71,7 @@ class Bitboard {
                             continue;
 
                         if (!board.getBit(otherRank, otherFile))
-                            throw new RuntimeException("Issue at focus rank " + focusRank +
+                            throw new UnitTestException("Issue at focus rank " + focusRank +
                                     ", focus file " + focusFile +
                                     ", other rank " + otherRank +
                                     ", other file " + otherFile);
@@ -86,8 +86,13 @@ class Bitboard {
     Bitboard()          { this.bits = ZERO; }
     Bitboard(long bits) { this.bits = bits; }
 
+    // Validate rank and file input
+    static boolean isRankFileInBounds(char rank, int file) {
+        return ('A' <= rank && rank <= 'H' && 1 <= file && file <= 8);
+    }
+
     // Convert rank and file to bit index
-    private static int indexFromRankFile(char rank, int file) {
+    static int indexFromRankFile(char rank, int file) {
 
         // Make sure the inputs are good
         if (!('A' <= rank && rank <= 'H'))
@@ -113,7 +118,7 @@ class Bitboard {
         else
             this.bits &= ~(ONE << index);
     }
-    private void setBit(char rank, int file, boolean isActive) {
+    void setBit(char rank, int file, boolean isActive) {
         this.setBit(indexFromRankFile(rank, file), isActive);
     }
 
@@ -141,5 +146,12 @@ class Bitboard {
             output.append(" ");
         }
         return output.toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Bitboard)
+            return this.bits == ((Bitboard)obj).bits;
+        return false;
     }
 }
