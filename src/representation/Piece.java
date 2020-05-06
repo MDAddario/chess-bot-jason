@@ -15,7 +15,7 @@ class Piece {
 
     // Bitboard helper methods
     private static Bitboard[][][] allocateBitboards() {
-        return new Bitboard[2][8][8];
+        return new Bitboard[2][8 + 'A'][8 + 1];
     }
 
     private static Bitboard[][][][] allocateMoves() {
