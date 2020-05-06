@@ -1,14 +1,17 @@
 package representation;
 
-class Bitboard {
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+class Bitboard implements Iterable<Square> {
 
     // Track the 64 bits of a chess board
     private long bits;
 
     // A couple helpful constants
-    private static final long ONE  = 0x0000000000000001L;
-    private static final long ZERO = 0x0000000000000000L;
-    private static final long FULL = 0xFFFFFFFFFFFFFFFFL;
+    private static final long ONE  = 0x1L;
+    private static final long ZERO = 0x0L;
 
     // Constructors
     Bitboard()          { this.bits = ZERO; }
@@ -81,6 +84,46 @@ class Bitboard {
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        return (int)this.bits;
+    }
+
+    @Override
+    public BitboardIterator iterator() {
+        return new BitboardIterator();
+    }
+
+    private class BitboardIterator implements Iterator<Square> {
+
+        // Attribute
+        ArrayList<Square> list;
+
+        private BitboardIterator() {
+
+            // Create the return array list
+            this.list = new ArrayList<>();
+
+            // Run through all the bits
+            for (char file = 'A'; file <= 'H'; file++)
+                for (int rank = 1; rank <= 8; rank++)
+                    if (Bitboard.this.getBit(file, rank))
+                        this.list.add(new Square(file, rank));
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !this.list.isEmpty();
+        }
+
+        @Override
+        public Square next() {
+            if (this.list.isEmpty())
+                throw new NoSuchElementException("Out of elements.");
+            return this.list.remove(this.list.size() - 1);
+        }
+    }
+
     // Unit testing
     public static void main(String[] args) {
 
@@ -119,7 +162,7 @@ class Bitboard {
             }
 
         // Create a full bitboard
-        board = new Bitboard(FULL);
+        board = new Bitboard(0xffffffffffffffffL);
 
         // Make sure each bit can be off while all others are on
         for (char focusFile = 'A'; focusFile <= 'H'; focusFile++)
@@ -151,5 +194,25 @@ class Bitboard {
                 // Set the focus bit on
                 board.setBit(focusFile, focusRank, true);
             }
+
+        // Test the iterator
+        board = new Bitboard();
+        board.setBit('E', 4, true);
+        board.setBit('F', 6, true);
+        board.setBit('H', 7, true);
+
+        ArrayList<Square> squares = new ArrayList<>();
+
+        for (Square square : board)
+            squares.add(square);
+
+        if (squares.size() != 3)
+            throw new UnitTestException("Iterator broke.");
+        if (squares.get(0).getFile() != 'H' || squares.get(0).getRank() != 7)
+            throw new UnitTestException("Iterator broke.");
+        if (squares.get(1).getFile() != 'F' || squares.get(1).getRank() != 6)
+            throw new UnitTestException("Iterator broke.");
+        if (squares.get(2).getFile() != 'E' || squares.get(2).getRank() != 4)
+            throw new UnitTestException("Iterator broke.");
     }
 }

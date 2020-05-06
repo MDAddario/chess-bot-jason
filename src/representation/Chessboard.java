@@ -1,10 +1,12 @@
 package representation;
 
+import java.util.ArrayList;
+
 class Chessboard {
 
     // Hold all the capture and quiet move bitmasks
-    private static final Bitboard[][][] captureMoves = Piece.getCaptureMoves();
-    private static final Bitboard[][][] quietMoves   = Piece.getQuietMoves();
+    private static final Bitboard[][][][] captureMoves = Piece.getCaptureMoves();
+    private static final Bitboard[][][][] quietMoves   = Piece.getQuietMoves();
 
     // Hold a bitmask for each piece type and for each color
     private Bitboard[] boards;
@@ -12,16 +14,8 @@ class Chessboard {
     // Keep track of en passant rights and castling rights
     private SpecialFlags flags;
 
-    // Distinguish the piece colors and piece types
-    private static final int NONE   = Piece.NONE;
-    private static final int BLACK  = Piece.BLACK;
-    private static final int WHITE  = Piece.WHITE;
-    private static final int KING   = Piece.KING;
-    private static final int KNIGHT = Piece.KNIGHT;
-    private static final int ROOK   = Piece.ROOK;
-    private static final int BISHOP = Piece.BISHOP;
-    private static final int QUEEN  = Piece.QUEEN;
-    private static final int PAWN   = Piece.PAWN;
+    // Keep track of the turn number
+    private int ply;
 
     // Protection methods
     private boolean isTypeLegal(int type)   { return 2 <= type && type < 8; }
@@ -33,7 +27,7 @@ class Chessboard {
         for (int color = 0; color < 2; color++)
             if (this.boards[color].getBit(file, rank))
                 return color;
-        return NONE;
+        return Piece.NONE;
     }
 
     private int getType(char file, int rank) {
@@ -41,7 +35,7 @@ class Chessboard {
         for (int type = 2; type < 8; type++)
             if (this.boards[type].getBit(file, rank))
                 return type;
-        return NONE;
+        return Piece.NONE;
     }
 
     // Default constructor
@@ -70,52 +64,70 @@ class Chessboard {
         this.boards[type] .setBit(file, rank, isActive);
     }
 
-    private void setBit(Move.Square square, boolean isActive) {
-        this.setBit(square.getFile(), square.getRank(), square.getType(), square.getColor(), isActive);
+    // Generate all quiet moves
+    private ArrayList<Move> generateQuietMoves() {
+
+        // Create the return array
+        ArrayList<Move> moves = new ArrayList<>();
+
+        // Determine whose turn it is
+        int curColor = (this.ply + Piece.BLACK) % 2;
+        int oppColor = (this.ply + Piece.BLACK + 1) % 2;
+
+        // Run through all pieces of current color
+        for (Square from : this.boards[curColor]) {
+
+            continue;
+
+
+
+        }
+
+        return moves;
     }
 
     // Load starting chess position
     private void loadDefaults() {
 
         // White frontend
-        this.setBit('A', 2, PAWN, WHITE, true);
-        this.setBit('B', 2, PAWN, WHITE, true);
-        this.setBit('C', 2, PAWN, WHITE, true);
-        this.setBit('D', 2, PAWN, WHITE, true);
-        this.setBit('E', 2, PAWN, WHITE, true);
-        this.setBit('F', 2, PAWN, WHITE, true);
-        this.setBit('G', 2, PAWN, WHITE, true);
-        this.setBit('H', 2, PAWN, WHITE, true);
+        this.setBit('A', 2, Piece.PAWN, Piece.WHITE, true);
+        this.setBit('B', 2, Piece.PAWN, Piece.WHITE, true);
+        this.setBit('C', 2, Piece.PAWN, Piece.WHITE, true);
+        this.setBit('D', 2, Piece.PAWN, Piece.WHITE, true);
+        this.setBit('E', 2, Piece.PAWN, Piece.WHITE, true);
+        this.setBit('F', 2, Piece.PAWN, Piece.WHITE, true);
+        this.setBit('G', 2, Piece.PAWN, Piece.WHITE, true);
+        this.setBit('H', 2, Piece.PAWN, Piece.WHITE, true);
 
         // White backend
-        this.setBit('A', 1, ROOK,   WHITE, true);
-        this.setBit('B', 1, KNIGHT, WHITE, true);
-        this.setBit('C', 1, BISHOP, WHITE, true);
-        this.setBit('D', 1, QUEEN,  WHITE, true);
-        this.setBit('E', 1, KING,   WHITE, true);
-        this.setBit('F', 1, BISHOP, WHITE, true);
-        this.setBit('G', 1, KNIGHT, WHITE, true);
-        this.setBit('H', 1, ROOK,   WHITE, true);
+        this.setBit('A', 1, Piece.ROOK,   Piece.WHITE, true);
+        this.setBit('B', 1, Piece.KNIGHT, Piece.WHITE, true);
+        this.setBit('C', 1, Piece.BISHOP, Piece.WHITE, true);
+        this.setBit('D', 1, Piece.QUEEN,  Piece.WHITE, true);
+        this.setBit('E', 1, Piece.KING,   Piece.WHITE, true);
+        this.setBit('F', 1, Piece.BISHOP, Piece.WHITE, true);
+        this.setBit('G', 1, Piece.KNIGHT, Piece.WHITE, true);
+        this.setBit('H', 1, Piece.ROOK,   Piece.WHITE, true);
 
         // Black frontend
-        this.setBit('A', 7, PAWN, BLACK, true);
-        this.setBit('B', 7, PAWN, BLACK, true);
-        this.setBit('C', 7, PAWN, BLACK, true);
-        this.setBit('D', 7, PAWN, BLACK, true);
-        this.setBit('E', 7, PAWN, BLACK, true);
-        this.setBit('F', 7, PAWN, BLACK, true);
-        this.setBit('G', 7, PAWN, BLACK, true);
-        this.setBit('H', 7, PAWN, BLACK, true);
+        this.setBit('A', 7, Piece.PAWN, Piece.BLACK, true);
+        this.setBit('B', 7, Piece.PAWN, Piece.BLACK, true);
+        this.setBit('C', 7, Piece.PAWN, Piece.BLACK, true);
+        this.setBit('D', 7, Piece.PAWN, Piece.BLACK, true);
+        this.setBit('E', 7, Piece.PAWN, Piece.BLACK, true);
+        this.setBit('F', 7, Piece.PAWN, Piece.BLACK, true);
+        this.setBit('G', 7, Piece.PAWN, Piece.BLACK, true);
+        this.setBit('H', 7, Piece.PAWN, Piece.BLACK, true);
 
         // Black backend
-        this.setBit('A', 8, ROOK,   BLACK, true);
-        this.setBit('B', 8, KNIGHT, BLACK, true);
-        this.setBit('C', 8, BISHOP, BLACK, true);
-        this.setBit('D', 8, QUEEN,  BLACK, true);
-        this.setBit('E', 8, KING,   BLACK, true);
-        this.setBit('F', 8, BISHOP, BLACK, true);
-        this.setBit('G', 8, KNIGHT, BLACK, true);
-        this.setBit('H', 8, ROOK,   BLACK, true);
+        this.setBit('A', 8, Piece.ROOK,   Piece.BLACK, true);
+        this.setBit('B', 8, Piece.KNIGHT, Piece.BLACK, true);
+        this.setBit('C', 8, Piece.BISHOP, Piece.BLACK, true);
+        this.setBit('D', 8, Piece.QUEEN,  Piece.BLACK, true);
+        this.setBit('E', 8, Piece.KING,   Piece.BLACK, true);
+        this.setBit('F', 8, Piece.BISHOP, Piece.BLACK, true);
+        this.setBit('G', 8, Piece.KNIGHT, Piece.BLACK, true);
+        this.setBit('H', 8, Piece.ROOK,   Piece.BLACK, true);
 
         // Load the starting flags
         this.flags = new SpecialFlags();
@@ -126,16 +138,16 @@ class Chessboard {
 
         // Create correspondence arrays
         char[] names = new char[8];
-        names[KING]   = 'K';
-        names[QUEEN]  = 'Q';
-        names[BISHOP] = 'B';
-        names[ROOK]   = 'R';
-        names[KNIGHT] = 'N';
-        names[PAWN]   = 'P';
+        names[Piece.KING]   = 'K';
+        names[Piece.QUEEN]  = 'Q';
+        names[Piece.BISHOP] = 'B';
+        names[Piece.ROOK]   = 'R';
+        names[Piece.KNIGHT] = 'N';
+        names[Piece.PAWN]   = 'P';
 
         char[] colors = new char[2];
-        colors[WHITE] = 'w';
-        colors[BLACK] = 'b';
+        colors[Piece.WHITE] = 'w';
+        colors[Piece.BLACK] = 'b';
 
         StringBuilder output = new StringBuilder();
         output.append("-----".repeat(8));
@@ -146,7 +158,7 @@ class Chessboard {
                 int color = this.getColor(file, rank);
                 int type  = this.getType(file, rank);
 
-                if (color != NONE && type != NONE) {
+                if (color != Piece.NONE && type != Piece.NONE) {
                     output.append(" ");
                     output.append(colors[color]);
                     output.append(names[type]);
