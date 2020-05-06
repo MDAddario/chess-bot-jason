@@ -3,6 +3,7 @@ package representation;
 class Piece {
 
     // Distinguish the piece colors and piece types
+    static final int NONE   = -1;
     static final int BLACK  = 0;
     static final int WHITE  = 1;
     static final int KING   = 2;

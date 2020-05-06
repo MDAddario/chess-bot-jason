@@ -2,17 +2,6 @@ package representation;
 
 class Chessboard {
 
-    // Distinguish the piece colors and piece types
-    private static final int NONE   = -1;
-    private static final int BLACK  = Piece.BLACK;
-    private static final int WHITE  = Piece.WHITE;
-    private static final int KING   = Piece.KING;
-    private static final int KNIGHT = Piece.KNIGHT;
-    private static final int ROOK   = Piece.ROOK;
-    private static final int BISHOP = Piece.BISHOP;
-    private static final int QUEEN  = Piece.QUEEN;
-    private static final int PAWN   = Piece.PAWN;
-
     // Hold all the capture and quiet move bitmasks
     private static final Bitboard[][][] captureMoves = Piece.getCaptureMoves();
     private static final Bitboard[][][] quietMoves   = Piece.getQuietMoves();
@@ -22,6 +11,38 @@ class Chessboard {
 
     // Keep track of en passant rights and castling rights
     private SpecialFlags flags;
+
+    // Distinguish the piece colors and piece types
+    private static final int NONE   = Piece.NONE;
+    private static final int BLACK  = Piece.BLACK;
+    private static final int WHITE  = Piece.WHITE;
+    private static final int KING   = Piece.KING;
+    private static final int KNIGHT = Piece.KNIGHT;
+    private static final int ROOK   = Piece.ROOK;
+    private static final int BISHOP = Piece.BISHOP;
+    private static final int QUEEN  = Piece.QUEEN;
+    private static final int PAWN   = Piece.PAWN;
+
+    // Protection methods
+    private boolean isTypeLegal(int type)   { return 2 <= type && type < 8; }
+    private boolean isColorLegal(int color) { return 0 <= color && color < 2; }
+
+    // More helper functions
+    private int getColor(char file, int rank) {
+
+        for (int color = 0; color < 2; color++)
+            if (this.boards[color].getBit(file, rank))
+                return color;
+        return NONE;
+    }
+
+    private int getType(char file, int rank) {
+
+        for (int type = 2; type < 8; type++)
+            if (this.boards[type].getBit(file, rank))
+                return type;
+        return NONE;
+    }
 
     // Default constructor
     Chessboard() {
@@ -34,10 +55,6 @@ class Chessboard {
         // Load the defaults
         this.loadDefaults();
     }
-
-    // Protection methods
-    private boolean isTypeLegal(int type)   { return 2 <= type && type < 8; }
-    private boolean isColorLegal(int color) { return 0 <= color && color < 2; }
 
     // Helper function for managing boards
     private void setBit(char file, int rank, int type, int color, boolean isActive) {
@@ -53,22 +70,8 @@ class Chessboard {
         this.boards[type] .setBit(file, rank, isActive);
     }
 
-    // More helper functions
-    private int getColor(char file, int rank) {
-
-        if (this.boards[WHITE].getBit(file, rank))
-            return WHITE;
-        else if (this.boards[BLACK].getBit(file, rank))
-            return BLACK;
-        return NONE;
-    }
-
-    private int getType(char file, int rank) {
-
-        for (int type = 2; type < 8; type++)
-            if (this.boards[type].getBit(file, rank))
-                return type;
-        return NONE;
+    private void setBit(Move.Square square, boolean isActive) {
+        this.setBit(square.getFile(), square.getRank(), square.getType(), square.getColor(), isActive);
     }
 
     // Load starting chess position
